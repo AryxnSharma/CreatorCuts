@@ -325,7 +325,9 @@ export default function CreatorManagerCourse() {
   const [activeSection, setActiveSection] = useState("foundations");
   const [activeLesson, setActiveLesson] = useState(null);
   const [completed, setCompleted] = useState(new Set());
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 768);
+
+  const isMobile = window.innerWidth <= 768;
 
   const section = curriculum.find(s => s.id === activeSection);
   const currentLesson = activeLesson
@@ -358,29 +360,48 @@ export default function CreatorManagerCourse() {
       {/* Header */}
       <div style={{
         borderBottom: `1px solid ${CARD_BORDER}`,
-        padding: "0 24px",
+        padding: isMobile ? "0 12px" : "0 24px",
         display: "flex", alignItems: "center", justifyContent: "space-between",
         height: 56, background: "#0B0B0B", flexShrink: 0
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          {isMobile && (
+  <button
+    onClick={() => setSidebarOpen(!sidebarOpen)}
+    style={{
+      background: "none",
+      border: "none",
+      color: "#fff",
+      fontSize: 22,
+      cursor: "pointer"
+    }}
+  >
+    ☰
+  </button>
+)}
           <div style={{ width: 28, height: 28, borderRadius: 6, background: ACCENT, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>🎬</div>
-          <span style={{ fontSize: 14, fontWeight: 600, letterSpacing: "-0.01em" }}>Creator Manager Masterclass</span>
+          <span style={{
+  fontSize: isMobile ? 11 : 14,
+  fontWeight: 600, letterSpacing: "-0.01em" }}>Creator Manager Masterclass</span>
           <span style={{ fontSize: 11, color: TEXT_DIM, padding: "2px 6px", borderRadius: 4, border: `1px solid ${CARD_BORDER}` }}>v1.0</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <div style={{ fontSize: 12, color: TEXT_MUTED }}>
             <span style={{ color: TEXT_PRIMARY, fontWeight: 600 }}>{completedCount}</span> / {totalLessons} lessons
           </div>
-          <div style={{ width: 100 }}>
+          {!isMobile && (
+  <div style={{ width: 100 }}>
             <ProgressBar completed={completedCount} total={totalLessons} color={ACCENT} />
-          </div>
+          </div>)}
         </div>
       </div>
 
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
         {/* Sidebar */}
         <div style={{
-          width: sidebarOpen ? 280 : 0, flexShrink: 0, overflow: "hidden",
+         width: sidebarOpen
+  ? (isMobile ? 280 : 280)
+  : 0, flexShrink: 0, overflow: "hidden",
           transition: "width 0.25s ease", borderRight: `1px solid ${CARD_BORDER}`,
           background: "#0B0B0B", display: "flex", flexDirection: "column"
         }}>
@@ -417,7 +438,13 @@ export default function CreatorManagerCourse() {
                       {mod.lessons.map(lesson => (
                         <button
                           key={lesson.title}
-                          onClick={() => setActiveLesson(lesson.title)}
+                          onClick={() => {
+  setActiveLesson(lesson.title);
+
+  if (isMobile) {
+    setSidebarOpen(false);
+  }
+}}
                           style={{
                             width: "100%", textAlign: "left",
                             padding: "7px 16px 7px 40px",
@@ -458,7 +485,7 @@ export default function CreatorManagerCourse() {
                 <div style={{ fontSize: 36 }}>{section?.icon}</div>
                 <div>
                   <Badge color={section?.color || ACCENT}>{section?.duration}</Badge>
-                  <h1 style={{ fontSize: 26, fontWeight: 700, margin: "8px 0 6px", letterSpacing: "-0.02em" }}>{section?.title}</h1>
+                  <h1 style={{ fontSize: isMobile ? 20 : 26, fontWeight: 700, margin: "8px 0 6px", letterSpacing: "-0.02em" }}>{section?.title}</h1>
                   <p style={{ fontSize: 14, color: TEXT_MUTED, margin: 0 }}>
                     {sectionLessons.filter(l => completed.has(l.title)).length} of {sectionLessons.length} lessons completed
                   </p>
@@ -472,7 +499,13 @@ export default function CreatorManagerCourse() {
                     {mod.lessons.map((lesson, li) => (
                       <button
                         key={lesson.title}
-                        onClick={() => setActiveLesson(lesson.title)}
+                        onClick={() => {
+  setActiveLesson(lesson.title);
+
+  if (isMobile) {
+    setSidebarOpen(false);
+  }
+}}
                         style={{
                           background: CARD_BG, border: `1px solid ${CARD_BORDER}`,
                           borderRadius: 10, padding: "14px 18px",
@@ -507,7 +540,9 @@ export default function CreatorManagerCourse() {
             // Lesson view
            <div style={{
   width: "100%",
-  padding: "40px 60px"
+  padding: isMobile
+  ? "20px 16px"
+  : "40px 60px"
 }}>
               <button onClick={() => setActiveLesson(null)} style={{
                 background: "none", border: "none", color: TEXT_DIM, cursor: "pointer",
@@ -518,7 +553,7 @@ export default function CreatorManagerCourse() {
 
               <div style={{ marginBottom: 24 }}>
                 <Badge color={section?.color || ACCENT}>{currentLesson.sectionId}</Badge>
-                <h1 style={{ fontSize: 22, fontWeight: 700, margin: "10px 0 4px", letterSpacing: "-0.02em" }}>{currentLesson.title}</h1>
+                <h1 style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, margin: "10px 0 4px", letterSpacing: "-0.02em" }}>{currentLesson.title}</h1>
                 <p style={{ fontSize: 13, color: TEXT_DIM, margin: 0 }}>{currentLesson.section}</p>
               </div>
 
@@ -563,7 +598,7 @@ export default function CreatorManagerCourse() {
         </div>
 
         {/* Right stats panel — only on section view */}
-        {!currentLesson && (
+        {!currentLesson && !isMobile && (
           <div style={{
             width: 220, flexShrink: 0, borderLeft: `1px solid ${CARD_BORDER}`,
             background: "#0B0B0B", padding: "24px 16px",
